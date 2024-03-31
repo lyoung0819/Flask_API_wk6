@@ -8,3 +8,5 @@ class User(db.Model):
     email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    
