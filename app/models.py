@@ -28,6 +28,17 @@ class User(db.Model):
 
     def check_password(self, plaintext_pass):
         return check_password_hash(self.password, plaintext_pass)
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "firstName": self.first_name,
+            "lastName": self.last_name,
+            "username": self.username,
+            "dateCreated": self.date_created
+        }
+
+
 
 
 class Task(db.Model):
@@ -48,3 +59,14 @@ class Task(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    # To transfer Task Object into a dictionary
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "completed": self.completed,
+            "dueDate": self.dueDate,
+            "createdAt": self.createdAt
+        }

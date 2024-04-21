@@ -85,12 +85,10 @@ def create_task():
         return {'error': f"{', '.join(missing_fields)} must be in the request body"}, 400
     # the code block above is ensuring title, desc, and duedate are all in the post req body, in json format. From there, we can GET that data and add it to our dict
 
-
     # Get data values
     title = data.get('title')
     description = data.get('description')
     dueDate = data.get('dueDate')
-
 
     # Create new task  
     new_task = Task(title=title, description=description, dueDate=dueDate)
