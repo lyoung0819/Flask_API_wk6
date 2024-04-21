@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from config import Config
 
-
+# app = Flask instance with the name of the current module 
 app = Flask(__name__)
 
 #Set config for the app with from_obj
