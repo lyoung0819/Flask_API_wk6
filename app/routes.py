@@ -107,8 +107,8 @@ def create_task():
         'description' : description,
         'completed' : False,
         'dueDate': dueDate, 
-        'createdAt': datetime
     }
+
 
     # Add the new post to storage (new_task)
     tasks_list.append(new_task)
