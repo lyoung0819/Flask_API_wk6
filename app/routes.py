@@ -38,14 +38,14 @@ def create_user():
     password = data.get('password')
 
     # Check to see if any current users already have that username and/or email
-    check_users = db.session.execute(db.select.User).where( (User.username == username) | (User.email == email) ).scalars().all()
+    check_users = db.session.execute(db.select(User).where( (User.username == username) | (User.email == email) )).scalars().all()
     if check_users:
             return {'error':'A user with that username and/or email already exists'}, 400
         
     # As long as the email/usernames are unique, we can create the user
     new_user = User(first_name=first_name, last_name=last_name, email=email, password=password, username=username)
     
-    return new_user, 201
+    return new_user.to_dict(), 201
 # ................................
 
 # Task Endpoints
@@ -93,4 +93,4 @@ def create_task():
     # Create new task  
     new_task = Task(title=title, description=description, dueDate=dueDate)
 
-    return new_task, 201
+    return new_task.to_dict(), 201
