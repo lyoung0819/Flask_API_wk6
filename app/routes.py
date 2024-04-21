@@ -1,6 +1,7 @@
 from flask import request, render_template
 from app import app 
 from all_tasks.tasks import tasks_list
+from datetime import datetime
 
 # Storage for users prior to database connection
 users = []
@@ -104,8 +105,9 @@ def create_task():
         'id' : len(tasks_list) + 1,
         'title' : title,
         'description' : description,
+        'completed' : False,
         'dueDate': dueDate, 
-        'createdAt': '2024-03-29T15:23:11'
+        'createdAt': datetime
     }
 
     # Add the new post to storage (new_task)
