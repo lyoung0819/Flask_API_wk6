@@ -1,17 +1,16 @@
 from flask import request, render_template
-from app import app 
+from . import app, db 
+from .models import User, Task
 from all_tasks.tasks import tasks_list
-from datetime import datetime
-
-# Storage for users prior to database connection
-users = []
 
 
-# ................................
+# ...............................
+
 # Home Endpoint
 @app.route('/')
 def index():
     return render_template('index.html')
+# ...............................
 
 # User Endpots
 # Create New User
@@ -39,31 +38,24 @@ def create_user():
     password = data.get('password')
 
     # Check to see if any current users already have that username and/or email
-    for user in users:
-        if user['username'] == username or user['email'] == email:
+    check_users = db.session.execute(db.select.User).where( (User.username == username) | (User.email == email) ).scalars().all()
+    if check_users:
             return {'error':'A user with that username and/or email already exists'}, 400
         
     # As long as the email/usernames are unique, we can create the user
-    new_user = {
-        "id": len(users) +1,
-        "firstName": first_name,
-        "lastName": last_name,
-        "username": username,
-        "email": email,
-        "password": password
-    }
-    users.append(new_user)
+    new_user = User(first_name=first_name, last_name=last_name, email=email, password=password, username=username)
+    
     return new_user, 201
 # ................................
 
 # Task Endpoints
-# Get All Posts 
+# Get All Tasks 
 @app.route('/tasks')
 def get_all_tasks():
     return tasks_list
 
 
-# Get Post by Specific ID 
+# Get Task by Specific ID 
 @app.route('/tasks/<int:task_id>')
 def get_task_by_id(task_id):
     # Get the tasks from where they are stored (in tasks_list)
@@ -100,18 +92,7 @@ def create_task():
     dueDate = data.get('dueDate')
 
 
-    # Create new task dictionary 
-    new_task = {
-        'id' : len(tasks_list) + 1,
-        'title' : title,
-        'description' : description,
-        'completed' : False,
-        'dueDate': dueDate, 
-    }
+    # Create new task  
+    new_task = Task(title=title, description=description, dueDate=dueDate)
 
-
-    # Add the new post to storage (new_task)
-    tasks_list.append(new_task)
-
-    # Return the newly created task dictionary with a 201 Created Status Code
-    return tasks_list, 201
+    return new_task, 201
