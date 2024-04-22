@@ -96,7 +96,33 @@ def create_task():
     description = data.get('description')
     dueDate = data.get('dueDate')
 
+    current_user = token_auth.current_user() # will return User instance, and can then grab id attribute 
+
     # Create new task WITHIN database (via Task model)
-    new_task = Task(title=title, description=description, dueDate=dueDate)
+    new_task = Task(title=title, description=description, dueDate=dueDate, user_id=current_user.id)
 
     return new_task.to_dict(), 201
+
+
+# Update Tasks Endpoint
+@app.route('/tasks/<int:task_id>', methods=['PUT'])
+@token_auth.login_required
+def edit_task(task_id):
+    # Check to see that they have a json body
+    if not request.is_json:
+        return {'error':'Your content-type must be application/json'}, 400
+    # find task by ID in database
+    task = db.session.get(Task, task_id)
+    if task is None:
+        return {'error':'Task with an ID of #{task_id} does not exist'}, 404
+    # Get current user based on token
+    curren_user = token_auth.current_user()
+    #check if current user is author of task
+    if curren_user is not task.author:
+        return {'error':"This is not your task. You do not have permission to edit"}, 403
+    
+    # Get data from Request:
+    data = request.json
+    # Pass that data into the task's update method
+    task.update(**data)
+    return task.to_dict() 

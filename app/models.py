@@ -67,7 +67,7 @@ class Task(db.Model):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.save() # NOT AUTO-SAVING WHEN TASK IS CREATED-- DEBUG NEEDED 
+        self.save()  
 
     def __repr__(self):
         return f"<Task {self.id}|{self.title}>"
@@ -85,5 +85,13 @@ class Task(db.Model):
             "completed": self.completed,
             "dueDate": self.dueDate,
             "createdAt": self.createdAt,
-            "author": self.author.to_dict()  
+            "author": self.author.to_dict()  # Erroring - 'NoneType' object has no attribute 'to_dict'
         }
+    
+    # To allow updating tasks
+    def update(self, **kwargs):
+        allowed_fields = {'title', 'description', 'completed', 'dueDate'}
+        for key, value in kwargs.items():
+            if key in allowed_fields:
+                setattr(self, key, value)
+        self.save()
