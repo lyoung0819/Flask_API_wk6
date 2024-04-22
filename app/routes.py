@@ -126,3 +126,21 @@ def edit_task(task_id):
     # Pass that data into the task's update method
     task.update(**data)
     return task.to_dict() 
+
+# Delete Task Endpoint
+@app.route('/tasks/<int:task_id', methods=['DELETE'])
+@token_auth.login_required
+def delete(task_id):
+    #check if the task exists 
+    task = db.session.get(Task, task_id)
+    if task is None:
+        return {'error': 'This task does not exist'}, 404
+    
+    # make sure user trying to delete is the user whom create it 
+    current_user = token_auth.current_user()
+    if task.author is not current_user:
+        return {'error':'You do not have permission to delete this task'}, 403 
+    
+    # delete task, calling delete method 
+    task.delete()
+    return {'success':f'{task.title} was deleted successfully'}, 200

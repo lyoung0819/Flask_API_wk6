@@ -95,3 +95,8 @@ class Task(db.Model):
             if key in allowed_fields:
                 setattr(self, key, value)
         self.save()
+
+    # To delete
+    def delete(self, task_id):
+        db.session.delete(self)
+        db.session.commit()
