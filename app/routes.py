@@ -51,6 +51,10 @@ def create_user():
 # Get All Tasks 
 @app.route('/tasks')
 def get_all_tasks():
+    select_stmt = db.select(Task)
+    search = request.args.get('search')
+    if search:
+        select_stmt = select_stmt.where(Task.title.ilike(f"%{search}%"))
     # Get all tasks from the database
     tasks =  db.session.execute(db.select(Task)).scalars().all()
     for t in tasks:

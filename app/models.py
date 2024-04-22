@@ -1,5 +1,6 @@
+import secrets 
 from . import db
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
@@ -11,6 +12,8 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     tasks = db.relationship('Task', back_populates='author')
+    token = db.Column(db.String, index=True, unique=True)
+    token_expiration = db.Column(db.DateTime)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -39,6 +42,14 @@ class User(db.Model):
             "dateCreated": self.date_created
         }
 
+    def get_token(self):
+        now = datetime.now(timezone.utc)
+        if self.token and self.token_expiration > now + timedelta(minutes=1): # if a user has a token and it doesn't expire in the next minute, then they'll get back the same token, else a new one
+            return self.token
+        self.token = secrets.token_hex(16)
+        self.token_expiration = now + timedelta(hours=1) #for the next hour, this token will be valid 
+        self.save()
+        return {"token": self.token, "tokenExpiration": self.token_expiration}
 
 
 
@@ -74,5 +85,5 @@ class Task(db.Model):
             "completed": self.completed,
             "dueDate": self.dueDate,
             "createdAt": self.createdAt,
-            "author": self.author.to_dict()
+            "author": self.author.to_dict()  
         }
