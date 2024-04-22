@@ -10,6 +10,7 @@ class User(db.Model):
     email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    tasks = db.relationship('Task', back_populates='author')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -50,6 +51,8 @@ class Task(db.Model):
     dueDate = db.Column(db.String, nullable=False)
     createdAt = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)) 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # RE-ADD NULLABLE=FALSE 
+    author = db.relationship('User', back_populates='tasks')
+
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -71,5 +74,5 @@ class Task(db.Model):
             "completed": self.completed,
             "dueDate": self.dueDate,
             "createdAt": self.createdAt,
-            "user_id": self.user_id
+            "author": self.author.to_dict()
         }
