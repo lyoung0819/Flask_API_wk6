@@ -1,5 +1,5 @@
 from . import db
-from datetime import datetime
+from datetime import datetime, timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
@@ -9,7 +9,7 @@ class User(db.Model):
     username = db.Column(db.String, nullable=False, unique=True)
     email = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -42,12 +42,14 @@ class User(db.Model):
 
 
 class Task(db.Model):
+    #DB Table setup 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     completed = db.Column(db.Boolean, nullable=False, default=False)
     dueDate = db.Column(db.String, nullable=False)
-    createdAt = db.Column(db.DateTime, nullable=False, default=datetime.utcnow) 
+    createdAt = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)) 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # RE-ADD NULLABLE=FALSE 
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -68,5 +70,6 @@ class Task(db.Model):
             "description": self.description,
             "completed": self.completed,
             "dueDate": self.dueDate,
-            "createdAt": self.createdAt
+            "createdAt": self.createdAt,
+            "user_id": self.user_id
         }

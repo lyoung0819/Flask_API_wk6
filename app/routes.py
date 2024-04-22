@@ -1,18 +1,17 @@
 from flask import request, render_template
 from . import app, db 
 from .models import User, Task
-from all_tasks.tasks import tasks_list
 
 
 # ...............................
 
-# Home Endpoint
+# HOME ENDPOINT
 @app.route('/')
 def index():
     return render_template('index.html')
 # ...............................
 
-# User Endpots
+# USER ENDPOINTS
 # Create New User
 @app.route('/users', methods=['POST'])
 def create_user():
@@ -48,22 +47,24 @@ def create_user():
     return new_user.to_dict(), 201
 # ................................
 
-# Task Endpoints
+# TASK ENDPOINTS
 # Get All Tasks 
 @app.route('/tasks')
 def get_all_tasks():
-    return tasks_list
+    # Get all tasks from the database
+    tasks =  db.session.execute(db.select(Task)).scalars().all()
+    for t in tasks:
+        return t.to_dict()
 
 
 # Get Task by Specific ID 
 @app.route('/tasks/<int:task_id>')
 def get_task_by_id(task_id):
-    # Get the tasks from where they are stored (in tasks_list)
-    tasks = tasks_list
+    # Get the tasks from where they are stored in DB
+    task = db.session.get(Task, task_id)
     # For each dict in the list, if the key of 'id' matches the task_id from the URL, return that task
-    for task in tasks:
-        if task['id'] == task_id:
-            return task
+    if task:
+        return task.to_dict()
     return {'error': f'A task with the ID of {task_id} does not exist'}, 404 
 
 #Create new task
@@ -90,7 +91,7 @@ def create_task():
     description = data.get('description')
     dueDate = data.get('dueDate')
 
-    # Create new task  
+    # Create new task WITHIN database (via Task model)
     new_task = Task(title=title, description=description, dueDate=dueDate)
 
     return new_task.to_dict(), 201
