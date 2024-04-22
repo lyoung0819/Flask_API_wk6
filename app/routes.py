@@ -90,8 +90,7 @@ def get_all_tasks():
         select_stmt = select_stmt.where(Task.title.ilike(f"%{search}%"))
     # Get all tasks from the database
     tasks =  db.session.execute(db.select(Task)).scalars().all()
-    for t in tasks:
-        return t.to_dict()
+    return [t.to_dict() for t in tasks]
 
 
 # Get Task by Specific ID 

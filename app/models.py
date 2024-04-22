@@ -65,7 +65,7 @@ class Task(db.Model):
     completed = db.Column(db.Boolean, nullable=False, default=False)
     dueDate = db.Column(db.String, nullable=False)
     createdAt = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)) 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) # RE-ADD NULLABLE=FALSE 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # RE-ADD NULLABLE=FALSE 
     author = db.relationship('User', back_populates='tasks')
 
 
