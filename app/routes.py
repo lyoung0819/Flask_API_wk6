@@ -45,6 +45,39 @@ def create_user():
     new_user = User(first_name=first_name, last_name=last_name, email=email, password=password, username=username)
     
     return new_user.to_dict(), 201
+
+
+# Delete User Endpoint
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+@token_auth.login_required
+def delete_user(user_id):
+    #check if the user exists 
+    user = db.session.get(User, user_id)
+    if user is None:
+        return {'error': 'This user does not exist'}, 404
+    
+    # make sure user trying to delete is the user whom created it 
+    current_user = token_auth.current_user()
+    if user is not current_user: # DOUBLE CHECK TO ENSURE WORKS CORRECTLY
+        return {'error':'You do not have permission to delete this user'}, 403 
+    
+    # delete task, calling delete method 
+    user.delete()
+    return {'success':f"User '{user.first_name}' was deleted successfully"}, 200
+
+@app.route('/token')
+@basic_auth.login_required
+def get_token():
+    user = basic_auth.current_user()
+    return user.get_token()
+
+
+@app.route('/users/me')
+@token_auth.login_required
+def get_me():
+    user = token_auth.current_user()
+    return user.to_dict()
+
 # ................................
 
 # TASK ENDPOINTS
@@ -128,9 +161,9 @@ def edit_task(task_id):
     return task.to_dict() 
 
 # Delete Task Endpoint
-@app.route('/tasks/<int:task_id', methods=['DELETE'])
+@app.route('/tasks/<int:task_id>', methods=['DELETE'])
 @token_auth.login_required
-def delete(task_id):
+def delete_task(task_id):
     #check if the task exists 
     task = db.session.get(Task, task_id)
     if task is None:

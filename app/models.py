@@ -51,6 +51,10 @@ class User(db.Model):
         self.save()
         return {"token": self.token, "tokenExpiration": self.token_expiration}
 
+    # To delete
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
 
 class Task(db.Model):
@@ -97,6 +101,6 @@ class Task(db.Model):
         self.save()
 
     # To delete
-    def delete(self, task_id):
+    def delete(self):
         db.session.delete(self)
         db.session.commit()
