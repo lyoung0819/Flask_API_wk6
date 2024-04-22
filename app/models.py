@@ -13,11 +13,11 @@ class User(db.Model):
     date_created = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     tasks = db.relationship('Task', back_populates='author')
     token = db.Column(db.String, index=True, unique=True)
-    token_expiration = db.Column(db.DateTime)
+    token_expiration = db.Column(db.DateTime(timezone=True))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.__set_password(kwargs.get('password', ''))
+        self.set_password(kwargs.get('password', ''))
 
     def __repr__(self):
         return f"<User {self.id}|{self.username}>"
@@ -26,7 +26,7 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def __set_password(self, plaintext_pass):
+    def set_password(self, plaintext_pass):
         self.password = generate_password_hash(plaintext_pass)
         self.save()
 
@@ -44,7 +44,7 @@ class User(db.Model):
 
     def get_token(self):
         now = datetime.now(timezone.utc)
-        if self.token and self.token_expiration > now + timedelta(minutes=1): # if a user has a token and it doesn't expire in the next minute, then they'll get back the same token, else a new one
+        if self.token and self.token_expiration.replace(tzinfo=timezone.utc) > now + timedelta(minutes=1): # if a user has a token and it doesn't expire in the next minute, then they'll get back the same token, else a new one
             return self.token
         self.token = secrets.token_hex(16)
         self.token_expiration = now + timedelta(hours=1) #for the next hour, this token will be valid 

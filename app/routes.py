@@ -1,7 +1,7 @@
 from flask import request, render_template
 from . import app, db 
 from .models import User, Task
-
+from .auth import basic_auth, token_auth
 
 # ...............................
 
@@ -73,6 +73,7 @@ def get_task_by_id(task_id):
 
 #Create new task
 @app.route('/tasks', methods=['POST'])
+@token_auth.login_required
 def create_task():
     # Check if the request object body is JSON
     if not request.is_json:
